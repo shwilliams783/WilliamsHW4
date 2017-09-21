@@ -36,24 +36,77 @@
      GitHub Repository: https://github.com/shwilliams783/WilliamsHW4
 -->
 <html>
+<style>
+table, tr, td, th{
+	border: 1px solid black;"
+}
+
+table{
+width:80%;
+}
+
+td{
+width:25%;
+}
+</style>
 <body>
 
-<h1>Grid Game Simulation</h1>
+<h1 align="center">Grid Game Simulation</h1>
 
 <p>This program simulates a grid-based board game where two opposing pieces (red and blue)
 start in opposing corners and randomly move around the board in lateral directions until
 one or the other piece reaches the corner opposite from where it started, or 1 million moves have occurred.
 Any time a piece lands on its opponent, the opposing piece immediately returns to its starting space.
 Once the game ends, a winner (or lose condition) is determined, and game statistics are displayed.</p>
+<div align="center" >
+	<button onClick="playGame()">Play the Game!</button>
+</div>
 
-<button onClick="playGame()">Play the Game!</button>
-<p id="redWins"></p>
-<p id="blueWins"></p>
-<p id="redMoves"></p>
-<p id="blueMoves"></p>
-<p id="redAvg"></p>
-<p id="blueAvg"></p>
-
+<table align="center">
+	<tr>
+		<th></th>
+		<th>Normal Game</th>
+		<th>Board Wrap Game</th>
+		<th>Smart Move Game</th>
+	</tr>
+	<tr>
+		<th id="redWins"></th>
+		<td id="normRedWins"></td>
+		<td id="wrapRedWins"></td>
+		<td id="smartRedWins"></td>
+	</tr>
+	<tr>
+		<th id="blueWins"></th>
+		<td id="normBlueWins"></td>
+		<td id="wrapBlueWins"></td>
+		<td id="smartBlueWins"></td>
+	</tr>
+	<tr>
+		<th id="redMoves"></th>
+		<td id="normRedMoves"></td>
+		<td id="wrapRedMoves"></td>
+		<td id="smartRedMoves"></td>
+	</tr>
+	<tr>
+		<th id="blueMoves"></th>
+		<td id="normBlueMoves"></td>
+		<td id="wrapBlueMoves"></td>
+		<td id="smartBlueMoves"></td>
+	</tr>
+	<tr>
+		<th id="redAvg"></th>
+		<td id="normRedAvg"></td>
+		<td id="wrapRedAvg"></td>
+		<td id="smartRedAvg"></td>
+	</tr>
+	<tr>
+		<th id="blueAvg"></th>
+		<td id="normBlueAvg"></td>
+		<td id="wrapBlueAvg"></td>
+		<td id="smartBlueAvg"></td>
+	</tr>
+</table>
+	
 <script>
 
 // Global Statistical Variables
@@ -307,24 +360,43 @@ function moveBlueMarker(){
 function updateResults(){
 	
 // Display the number of moves taken by the red marker during this game.
-document.getElementById("redWins").innerHTML = "Number of times Red has won: " + normRedWins;
+document.getElementById("redWins").innerHTML = "Red Wins";
+document.getElementById("normRedWins").innerHTML = normRedWins;
+document.getElementById("wrapRedWins").innerHTML = wrapRedWins;
+document.getElementById("smartRedWins").innerHTML = smartRedWins;
 
 // Display the number of moves taken by the blue marker during this game.
-document.getElementById("blueWins").innerHTML = "Number of times Blue has won: " + normBlueWins;
+document.getElementById("blueWins").innerHTML = "Blue Wins";
+document.getElementById("normBlueWins").innerHTML = normBlueWins;
+document.getElementById("wrapBlueWins").innerHTML = wrapBlueWins;
+document.getElementById("smartBlueWins").innerHTML = smartBlueWins;
 
 // Display the number of moves taken by the red marker during each red victory.
-document.getElementById("redMoves").innerHTML = "Number of times Red has moved per Red victory: " + normRedMoves;
+document.getElementById("redMoves").innerHTML = "Total Red Victory Moves";
+document.getElementById("normRedMoves").innerHTML = normRedMoves;
+document.getElementById("wrapRedMoves").innerHTML = wrapRedMoves;
+document.getElementById("smartRedMoves").innerHTML = smartRedMoves;
 
 // Display the number of moves taken by the blue marker during each blue victory.
-document.getElementById("blueMoves").innerHTML = "Number of times Blue has moved per Blue victory: " + normBlueMoves;
+document.getElementById("blueMoves").innerHTML = "Total Blue Victory Moves";
+document.getElementById("normBlueMoves").innerHTML = normBlueMoves;
+document.getElementById("wrapBlueMoves").innerHTML = wrapBlueMoves;
+document.getElementById("smartBlueMoves").innerHTML = smartBlueMoves;
 
 // Display the average number of moves taken by the red marker resulting in a red victory.
 normRedMoveAvg = normRedMoves/normRedWins;
-document.getElementById("redAvg").innerHTML = "Number of times Red has moved on average per Red victory: " + normRedMoveAvg;
+document.getElementById("redAvg").innerHTML = "Average Moves Per Red Victory";
+document.getElementById("normRedAvg").innerHTML = (normRedMoveAvg).toFixed(2);
+document.getElementById("wrapRedAvg").innerHTML = (wrapRedMoveAvg).toFixed(2);
+document.getElementById("smartRedAvg").innerHTML = (smartRedMoveAvg).toFixed(2);
 
 // Display the average number of moves taken by the blue marker resulting in a blue victory.
 normBlueMoveAvg = normBlueMoves/normBlueWins;
-document.getElementById("blueAvg").innerHTML = "Number of times Blue has moved on average per Blue victory: " + normBlueMoveAvg;
+document.getElementById("blueAvg").innerHTML = "Average Moves Per Blue Victory";
+document.getElementById("normBlueAvg").innerHTML = (normBlueMoveAvg).toFixed(2);
+document.getElementById("wrapBlueAvg").innerHTML = (wrapBlueMoveAvg).toFixed(2);
+document.getElementById("smartBlueAvg").innerHTML = (smartBlueMoveAvg).toFixed(2);
+
 
 }// End updateResults()
 
