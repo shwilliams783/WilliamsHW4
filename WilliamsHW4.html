@@ -47,27 +47,40 @@ Any time a piece lands on its opponent, the opposing piece immediately returns t
 Once the game ends, a winner (or lose condition) is determined, and game statistics are displayed.</p>
 
 <button onClick="playGame()">Play the Game!</button>
-
-</br>
-</br>
-<canvas id="gameBoard" width="0" height="0"></canvas>
-<p id="moveCount"></p>
-<p id="redMoveCount"></p>
-<p id="blueMoveCount"></p>
-<p id="redMarkerPosition"></p>
-<p id="blueMarkerPosition"></p>
-<p id="gameResult"></p>
-<p id="maxTouches"></p>
-<p id="minTouches"></p>
-<p id="averageTouches"></p>
-<p id="redStomps"></p>
-<p id="blueStomps"></p>
+<p id="redWins"></p>
+<p id="blueWins"></p>
+<p id="redMoves"></p>
+<p id="blueMoves"></p>
+<p id="redAvg"></p>
+<p id="blueAvg"></p>
 
 <script>
+
+// Global Statistical Variables
+var wins = 0;
+var normRedWins = 0;
+var normBlueWins = 0;
+var normRedMoves = 0;
+var normBlueMoves = 0;
+var normRedMoveAvg = 0;
+var normBlueMoveAvg = 0
+var normDraws = 0;
+var wrapRedWins = 0;
+var wrapBlueWins = 0;
+var wrapRedMoves = 0;
+var wrapBlueMoves = 0;
+var wrapRedMoveAvg = 0;
+var wrapBlueMoveAvg = 0
+var wrapDraws = 0;
+var smartRedWins = 0;
+var smartBlueWins = 0;
+var smartRedMoves = 0;
+var smartBlueMoves = 0;
+var smartRedMoveAvg = 0;
+var smartBlueMoveAvg = 0
+var smartDraws = 0;
+
 // Variables
-
-// Speed selection option from User.
-
 var numRows = 10;
 var numCols = 10;
 var runSpeed = 250;
@@ -108,20 +121,21 @@ var grid =	[
 			
 // The current maximum number of times any given cell in the grid has been touched.
 var max = 0;
+
 // The current minimum number of times any given cell in the grid has been touched.
 var min = 1000000;
+
 // The average number of times any given cell in the grid has been touched;
 // to be calculated after a non-zero number of cycles have been completed.
 var average = 0;
+
 // A variable for movement directions.
 var direction = 0;
+
 // Avariable for movement distances.
 var distance = 0;
-// Prepare the canvas
-var gameBoard = document.getElementById("gameBoard");
-// Draw the border surrounding the board	
-var boardMaker = gameBoard.getContext('2d');
 //End Variables
+
 // Functions
 // playGame()
 // Purpose: To simulate a starange game with a graphical display and user input
@@ -129,60 +143,40 @@ var boardMaker = gameBoard.getContext('2d');
 // Outputs: The simulated strange game as descibed in HW1
 function playGame(){
 // Reset the game
-resetGame();
-// Create the board
-drawGrid(numRows, numCols);
+resetAll();
+
 // Program execution loop; This loop should loop a maximum of 1,000,000 times
 // before terminating. Either the marker will reach (numRows-1, numCols-1), or the count will reach
 // 1000001.
-moveRedMarker();
-calcMax();
-calcMin();
-// Display the number of moves taken during this game.
-updateBoard();
-checkArray();
+winCondition();
+
+// Display the results of the simulation
+updateResults();
+
 }// End playGame()
-// drawGrid()
-// Purpose: to draw the game board as a grid of squares
-// Inputs: numRows, numCols
-// Outputs: a NxN grid drawn on canvas
-function drawGrid(rows, cols){
-    gameBoard.width = cols*21+1;
-    gameBoard.height = rows*21+1;
-    
-	
-	boardMaker.strokeStyle = "purple";
-	boardMaker.fillStyle = "purple";
-	boardMaker.fillRect(0, 0, 21*cols+1, 21*rows+1);
-	boardMaker.stroke();
-    
-	// Draw each grid square (alternating between colors)
-	for (x = 0; x < cols; x++) {
-		for(y = 0; y < rows; y++){
-        
-			// Even numbered tiles
-			if((x+y)%2 == 0){
-			boardMaker.fillStyle = "darkgreen";
-			}
-            
-			// Odd numbered tiles
-			else{
-				boardMaker.fillStyle = "darkgoldenrod";
-			}
-			boardMaker.fillRect(1+x*21, 1+y*21, 20, 20);
+
+function winCondition(){
+	while(wins < 1000){
+		moveRedMarker();
+		if(redPosX == numCols-1 && redPosY == 0){
+			normRedWins++;
+			normRedMoves += redCount;
+			wins++;
+			resetGame();
+			//console.log("Red Wins!");
+			continue;
+		}
+		moveBlueMarker();
+		if(bluePosX == 0 && bluePosY == numCols-1){
+			normBlueWins++;
+			normBlueMoves += blueCount;
+			wins++;
+			resetGame();
+			//console.log("Blue Wins!");
+			continue;
 		}
 	}
-}// End drawGrid()
-
-// drawRedMarker()
-// Purpose: This function updates the canvas with the current status of the game marker, represented by a red square.
-// Inputs: none
-// Outputs: none
-function drawRedMarker(){
-    // Place red marker on new tile
-    boardMaker.fillStyle = "red";
-	boardMaker.fillRect(1+redPosX*21, 1+redPosY*21, 20, 20);
-}// End drawRedMarker()
+}
 
 // moveRedMarker()
 // Purpose: Simulates random movement of the red marker on the grid.
@@ -243,19 +237,8 @@ function moveRedMarker(){
 		goHomeBlue();
 	}
 	
-    // Update the board and information
-    updateBoard();
 }// End moveRedMarker()
 
-// drawBlueMarker()
-// Purpose: This function updates the canvas with the current status of the game marker, represented by a blue square.
-// Inputs: none
-// Outputs: none
-function drawBlueMarker(){
-    // Place blue marker on new tile
-    boardMaker.fillStyle = "blue";
-	boardMaker.fillRect(1+bluePosX*21, 1+bluePosY*21, 20, 20);
-}// End drawBlueMarker()
 // moveBlueMarker()
 // Purpose: Simulates random movement of the blue marker on the grid.
 // Calls updateBoard() to update the game state in perceivable time.
@@ -315,140 +298,102 @@ function moveBlueMarker(){
 		goHomeRed();
 	}
     
-    // Update the board and information
-    updateBoard();
 }// End moveBlueMarker()
 
-// updateBoard()
+// updateResults()
 // Purpose: graphically updates the UI in real time
 // Inputs: none
 // Outputs: none
-function updateBoard(){
-	// Display the number of moves taken during this game.
-	document.getElementById("moveCount").innerHTML = "Number of moves taken: " + count;
+function updateResults(){
 	
-	// Display the number of moves taken by the red marker during this game.
-	document.getElementById("redMoveCount").innerHTML = "Number of moves Red has taken: " + redCount;
-	
-	// Display the number of moves taken by the blue marker during this game.
-	document.getElementById("blueMoveCount").innerHTML = "Number of moves Blue has taken: " + blueCount;
-	
-	// Display the coordinates of the marker at the end of the game.
-	document.getElementById("redMarkerPosition").innerHTML = "Red marker position: (" + redPosX + ',' + redPosY + ')';
-	
-	// Display the coordinates of the marker at the end of the game.
-	document.getElementById("blueMarkerPosition").innerHTML = "Blue marker position: (" + bluePosX + ',' + bluePosY + ')';
-	
-	// Display "Red wins!" or "Blue wins!" or "No steps left!" depending on the end state of the game.
-	
-	
-	if(count > 1000000)
-	{
-		document.getElementById("gameResult").innerHTML = "No steps left!";
-	}
-	else if(redPosX == numCols-1 && redPosY == 0)
-	{
-		document.getElementById("gameResult").innerHTML = "Red wins!";
-		redCount++;
-		blueCount--;
-	}
-	else if(bluePosX == 0 && bluePosY == numRows-1)
-	{
-		document.getElementById("gameResult").innerHTML = "Blue wins!";
-	}
-	else{
-		document.getElementById("gameResult").innerHTML = "Game in progress...";
-	}
-    
-    // Update the Max values
-    calcMax();
-	// Display the maximum number of times a given cell in the grid was visited.
-	document.getElementById("maxTouches").innerHTML = "The cell most frequently visited was visited " + max + " times.";
-	// Display the minimum number of times a given cell in the grid was visited.
-	document.getElementById("minTouches").innerHTML = "The cell least frequently visited was visited " + min + " times.";
-	// Display the average number of times a given cell in the grid was visited.
-	average = count/(numRows*numCols);
-	document.getElementById("averageTouches").innerHTML = "Each cell was visited an average of " + average + "times."; 
-	
-	// Display the number of times Red sent Blue home.
-	document.getElementById("redStomps").innerHTML = "Red sent Blue home " + redStomp + " times.";
-	
-	// Display the number of times Blue sent Red home.
-	document.getElementById("blueStomps").innerHTML = "Blue sent Red home " + blueStomp + " times.";
-	
-	//Update the game board graphics
-    drawGrid(numRows, numCols);
-	drawRedMarker();
-	drawBlueMarker();
-	
-	// Check for win/lose condition, call moveRedMarker() to continue game if win/lose condition not met.
-	if(count <= 1000000){ // Lose condition not yet met -> check for red win
-		if(redPosX != numCols-1 || redPosY != 0){ // Red win condition not yet met -> check for blue win
-			if(bluePosX != 0 || bluePosY != numRows-1){ // Blue win condition not yet met -> check player turn and move the next player
-				if(count%2 == 0){ // Red's turn
-					setTimeout(function(){ moveRedMarker(); },(runSpeed));
-				}
-				else{ // Blue's turn
-					setTimeout(function(){ moveBlueMarker(); },(runSpeed));
-				}
-			}
-		}
-    }
-}// End updateBoard()
+// Display the number of moves taken by the red marker during this game.
+document.getElementById("redWins").innerHTML = "Number of times Red has won: " + normRedWins;
+
+// Display the number of moves taken by the blue marker during this game.
+document.getElementById("blueWins").innerHTML = "Number of times Blue has won: " + normBlueWins;
+
+// Display the number of moves taken by the red marker during each red victory.
+document.getElementById("redMoves").innerHTML = "Number of times Red has moved per Red victory: " + normRedMoves;
+
+// Display the number of moves taken by the blue marker during each blue victory.
+document.getElementById("blueMoves").innerHTML = "Number of times Blue has moved per Blue victory: " + normBlueMoves;
+
+// Display the average number of moves taken by the red marker resulting in a red victory.
+normRedMoveAvg = normRedMoves/normRedWins;
+document.getElementById("redAvg").innerHTML = "Number of times Red has moved on average per Red victory: " + normRedMoveAvg;
+
+// Display the average number of moves taken by the blue marker resulting in a blue victory.
+normBlueMoveAvg = normBlueMoves/normBlueWins;
+document.getElementById("blueAvg").innerHTML = "Number of times Blue has moved on average per Blue victory: " + normBlueMoveAvg;
+
+}// End updateResults()
+
 // resetGame()
 // Purpose: This function resets the starting variables to their default values
 // Inputs: none
 // Outputs: none
 function resetGame(){
-// Variables
-
-
-var runSpeed = 250;
-
-// Current coordinates of the red marker; one of these values will
-// change by an integer from [-2,2] each cycle (most commonly 0).
-var redPosX = 0;
-var redPosY = numRows-1;
-
-// Current coordinates of the blue marker; one of these values will
-// change by an integer from [-2,2] each cycle (most commonly 0).
-var bluePosX = numCols-1;
-var bluePosY = 0;
-
-// Total number of total moves, red moves, and blue moves taken; will increment by +1 each cycle or colored cycle.
-var count = 0;
-var redCount = 0;
-var blueCount = 0;
-
-// Total number of times red has sent blue back home, and vice versa
-var redStomp = 0;
-var blueStomp = 0;
-
-// Starting grid touch counts; one cell will increment by +1 each cycle.
-var grid =	[
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-			]
-// The current maximum number of times any given cell in the grid has been touched.
+numRows = 10;
+numCols = 10;
+runSpeed = 250;
+redPosX = 0;
+redPosY = numRows-1;
+bluePosX = numCols-1;
+bluePosY = 0;
+count = 0;
+redCount = 0;
+blueCount = 0;
+redStomp = 0;
+blueStomp = 0;
+grid =	[
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+		[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		]
 max = 0;
-// The current minimum number of times any given cell in the grid has been touched.
 min = 1000000;
-// The average number of times any given cell in the grid has been touched;
-// to be calculated after a non-zero number of cycles have been completed.
 average = 0;
-// A variable for movement directions.
 direction = 0;
-// Avariable for movement distances.
 distance = 0;
 }// End resetGame()
+
+function resetAll(){
+
+resetGame();
+
+// Global Statistical Variables
+wins = 0;
+normRedWins = 0;
+normBlueWins = 0;
+normRedMoves = 0;
+normBlueMoves = 0;
+normRedMoveAvg = 0;
+normBlueMoveAvg = 0
+normDraws = 0;
+wrapRedWins = 0;
+wrapBlueWins = 0;
+wrapRedMoves = 0;
+wrapBlueMoves = 0;
+wrapRedMoveAvg = 0;
+wrapBlueMoveAvg = 0
+wrapDraws = 0;
+smartRedWins = 0;
+smartBlueWins = 0;
+smartRedMoves = 0;
+smartBlueMoves = 0;
+smartRedMoveAvg = 0;
+smartBlueMoveAvg = 0
+smartDraws = 0;
+
+}
+
 // calcMax()
 // Purpose: This function calculates the maximum number of times any given tile was touched.
 // Inputs: none
@@ -467,6 +412,7 @@ function calcMax(){
 		}
 	}
 }// End calcMax()
+
 // calcMin()
 // Purpose: This function calculates the minimum number of times any given tile was touched.
 // Inputs: none
@@ -479,22 +425,10 @@ function calcMin(){
 			if(grid[i][j] < min)
 			{
 				min = grid[i][j];
-				console.log("New min = " + min);
 			}
 		}
 	}
 }// End calcMin()
-// checkArray()
-// Purpose: This function displays the contents of the game array to the console
-// Inputs: none
-// Outputs: none
-function checkArray(){
-	for(i = 0; i < numCols; i++){
-		
-			console.log(grid[i]);
-		
-	}
-}// End checkArray()
 
 // goHomeRed()
 // Purpose: This function moves the red marker back to (0,numRows-1).
