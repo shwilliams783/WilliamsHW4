@@ -116,6 +116,7 @@ Once the game ends, a winner (or lose condition) is determined, and game statist
 // Global Statistical Variables
 var wins = 0;
 var wrapWins = 0;
+var smartWins = 0;
 var normRedWins = 0;
 var normBlueWins = 0;
 var normRedMoves = 0;
@@ -144,33 +145,19 @@ var wrapBlueMoveArray = [];
 var smartRedMoveArray = [];
 var smartBlueMoveArray = [];
 
-
-// Variables
+// Game Variables
 var numRows = 10;
 var numCols = 10;
 var runSpeed = 250;
-
-// Current coordinates of the red marker; one of these values will
-// change by an integer from [-2,2] each cycle (most commonly 0).
 var redPosX = 0;
 var redPosY = numRows-1;
-
-// Current coordinates of the blue marker; one of these values will
-// change by an integer from [-2,2] each cycle (most commonly 0).
 var bluePosX = numCols-1;
 var bluePosY = 0;
-
-
-// Total number of total moves, red moves, and blue moves taken; will increment by +1 each cycle or colored cycle.
 var count = 0;
 var redCount = 0;
 var blueCount = 0;
-
-// Total number of times red has sent blue back home, and vice versa
 var redStomp = 0;
 var blueStomp = 0;
-
-// Starting grid touch counts; one cell will increment by +1 each cycle.
 var grid =	[
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -182,30 +169,17 @@ var grid =	[
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-			]
-			
-// The current maximum number of times any given cell in the grid has been touched.
-var max = 0;
-
-// The current minimum number of times any given cell in the grid has been touched.
-var min = 1000000;
-
-// The average number of times any given cell in the grid has been touched;
-// to be calculated after a non-zero number of cycles have been completed.
-var average = 0;
-
-// A variable for movement directions.
+			];
 var direction = 0;
-
-// Avariable for movement distances.
 var distance = 0;
 //End Variables
 
 // Functions
-// playGame()
+/* playGame()
 // Purpose: To simulate a starange game with a graphical display and user input
 // Inputs: rowSelect, colSelect
 // Outputs: The simulated strange game as descibed in HW1
+*/
 function playGame(){
 // Reset the game
 resetAll();
@@ -216,6 +190,8 @@ resetAll();
 winCondition();
 resetGame();
 wrapWinCondition();
+resetGame();
+smartWinCondition();
 resetGame();
 
 // Display the results of the simulation
@@ -277,11 +253,37 @@ function wrapWinCondition(){
 	}
 }
 
-// moveRedMarker()
+function smartWinCondition(){
+	while(smartWins < 1000){
+		smartMoveRedMarker();
+		if(redPosX == numCols-1 && redPosY == 0){
+			smartRedWins++;
+			smartRedMoves += redCount;
+			smartRedMoveArray.push(redCount);
+			smartWins++;
+			resetGame();
+			console.log("Red Wins!");
+			continue;
+		}
+		smartMoveBlueMarker();
+		if(bluePosX == 0 && bluePosY == numCols-1){
+			smartBlueWins++;
+			smartBlueMoves += blueCount;
+			smartBlueMoveArray.push(blueCount);
+			smartWins++;
+			resetGame();
+			console.log("Blue Wins!");
+			continue;
+		}
+	}
+}
+
+/* moveRedMarker()
 // Purpose: Simulates random movement of the red marker on the grid.
 // Calls updateBoard() to update the game state in perceivable time.
 // Inputs: none
 // Outputs: none
+*/
 function moveRedMarker(){
 	
 	 // Increment the counters
@@ -299,13 +301,13 @@ function moveRedMarker(){
 	// If the new position would be invalid, do not move the marker.
 	switch (direction)
 	{
-		case 0: // up
+		case 0: // down
 			if(redPosY + distance < numRows)
 			{
 				redPosY += distance; // STEP 4: Move the marker to the new position.
 			}
 			break;
-		case 1: // down
+		case 1: // up
 			if(redPosY - distance >= 0)
 			{
 				redPosY -= distance; // STEP 4: Move the marker to the new position.
@@ -355,7 +357,7 @@ function wrapMoveRedMarker(){
 	// If the new position would be invalid, do not move the marker.
 	switch (direction)
 	{
-		case 0: // up
+		case 0: // down
 			if(redPosY + distance < numRows)
 			{
 				redPosY += distance; // STEP 4: Move the marker to the new position.
@@ -369,7 +371,7 @@ function wrapMoveRedMarker(){
 				redPosY = 1;
 			}
 			break;
-		case 1: // down
+		case 1: // up
 			if(redPosY - distance >= 0)
 			{
 				redPosY -= distance; // STEP 4: Move the marker to the new position.
@@ -426,11 +428,57 @@ function wrapMoveRedMarker(){
 	
 }
 
-// moveBlueMarker()
+function smartMoveRedMarker(){
+	
+	 // Increment the counters
+    count++;
+	redCount++;
+	
+    // STEP 1: Randomly assign 0, or 1 to direction; these will correspond to
+	// up, or right movement.
+	direction = Math.floor((Math.random()*2));
+	console.log("Red: " + direction);
+	
+	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
+	distance = Math.floor((Math.random()*3));
+	
+	// STEP 3: Attempt to move the marker that direction and distance within the grid
+	// If the new position would be invalid, do not move the marker.
+	switch (direction)
+	{
+		case 0: // up
+			if(redPosY - distance >= 0)
+			{
+				redPosY -= distance; // STEP 4: Move the marker to the new position.
+			}
+			break;
+		case 1: // right
+			if(redPosX + distance < numCols)
+			{
+				redPosX += distance; // STEP 4: Move the marker to the new position.
+			}
+			break;
+		default:
+			break;
+	}
+	
+	// Increment the touch count at the marker's current position on the grid.
+	grid[redPosX][redPosY]++;
+	
+	// Check if red has stomped on blue, sending it back to start and incrementing the stomp count.
+	if(redPosX == bluePosX && redPosY == bluePosY){
+		redStomp++;
+		goHomeBlue();
+	}
+	
+}
+
+/* moveBlueMarker()
 // Purpose: Simulates random movement of the blue marker on the grid.
 // Calls updateBoard() to update the game state in perceivable time.
 // Inputs: none
 // Outputs: none
+*/
 function moveBlueMarker(){
 	
 	// Increment the counters
@@ -448,13 +496,13 @@ function moveBlueMarker(){
 	// If the new position would be invalid, do not move the marker.
 	switch (direction)
 	{
-		case 0: // up
+		case 0: // down
 			if(bluePosY + distance < numRows)
 			{
 				bluePosY += distance; // STEP 4: Move the marker to the new position.
 			}
 			break;
-		case 1: // down
+		case 1: // up
 			if(bluePosY - distance >= 0)
 			{
 				bluePosY -= distance; // STEP 4: Move the marker to the new position.
@@ -504,7 +552,7 @@ function wrapMoveBlueMarker(){
 	// If the new position would be invalid, do not move the marker.
 	switch (direction)
 	{
-		case 0: // up
+		case 0: // down
 			if(bluePosY + distance < numRows)
 			{
 				bluePosY += distance; // STEP 4: Move the marker to the new position.
@@ -518,7 +566,7 @@ function wrapMoveBlueMarker(){
 				bluePosY = 1;
 			}
 			break;
-		case 1: // down
+		case 1: // up
 			if(bluePosY - distance >= 0)
 			{
 				bluePosY -= distance; // STEP 4: Move the marker to the new position.
@@ -575,10 +623,56 @@ function wrapMoveBlueMarker(){
 	
 }
 
-// updateResults()
+function smartMoveBlueMarker(){
+	
+	// Increment the counters
+    count++;
+	blueCount++;
+	
+    // STEP 1: Randomly assign 0, or 1 to direction; these will correspond to
+	// down, or left movement.
+	direction = Math.floor((Math.random()*2));
+	
+	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
+	distance = Math.floor((Math.random()*3));
+	
+	// STEP 3: Attempt to move the marker that direction and distance within the grid
+	// If the new position would be invalid, do not move the marker.
+	switch (direction)
+	{
+		case 0: // down
+			if(bluePosY + distance < numCols)
+			{
+				bluePosY += distance; // STEP 4: Move the marker to the new position.
+			}
+			break;
+		case 1: // left
+			if(bluePosX - distance >= 0)
+			{
+				bluePosX -= distance; // STEP 4: Move the marker to the new position.
+			}
+			break;
+		default:
+			break;
+	}
+	
+	// Increment the touch count at the marker's current position on the grid.
+	grid[bluePosX][bluePosY]++;
+	
+	// Check if blue has stomped on red, sending it back to start and incrementing the stomp count.
+	if(redPosX == bluePosX && redPosY == bluePosY){
+		blueStomp++;
+		goHomeRed();
+	}
+    
+}// End moveBlueMarker()
+
+
+/* updateResults()
 // Purpose: graphically updates the UI in real time
 // Inputs: none
 // Outputs: none
+*/
 function updateResults(){
 	
 // Display the number of moves taken by the red marker during this game.
@@ -608,6 +702,7 @@ document.getElementById("smartBlueMoves").innerHTML = smartBlueMoves;
 // Display the average number of moves taken by the red marker resulting in a red victory.
 normRedMoveAvg = normRedMoves/normRedWins;
 wrapRedMoveAvg = wrapRedMoves/wrapRedWins;
+smartRedMoveAvg = smartRedMoves/smartRedWins;
 document.getElementById("redAvg").innerHTML = "Average Moves Per Red Victory";
 document.getElementById("normRedAvg").innerHTML = (normRedMoveAvg).toFixed(2);
 document.getElementById("wrapRedAvg").innerHTML = (wrapRedMoveAvg).toFixed(2);
@@ -616,6 +711,7 @@ document.getElementById("smartRedAvg").innerHTML = (smartRedMoveAvg).toFixed(2);
 // Display the average number of moves taken by the blue marker resulting in a blue victory.
 normBlueMoveAvg = normBlueMoves/normBlueWins;
 wrapBlueMoveAvg = wrapBlueMoves/wrapBlueWins;
+smartBlueMoveAvg = smartBlueMoves/smartBlueWins;
 document.getElementById("blueAvg").innerHTML = "Average Moves Per Blue Victory";
 document.getElementById("normBlueAvg").innerHTML = (normBlueMoveAvg).toFixed(2);
 document.getElementById("wrapBlueAvg").innerHTML = (wrapBlueMoveAvg).toFixed(2);
@@ -624,10 +720,11 @@ document.getElementById("smartBlueAvg").innerHTML = (smartBlueMoveAvg).toFixed(2
 
 }// End updateResults()
 
-// resetGame()
+/* resetGame()
 // Purpose: This function resets the starting variables to their default values
 // Inputs: none
 // Outputs: none
+*/
 function resetGame(){
 numRows = 10;
 numCols = 10;
@@ -667,6 +764,7 @@ resetGame();
 // Global Statistical Variables
 wins = 0;
 wrapWins = 0;
+smartWins = 0;
 normRedWins = 0;
 normBlueWins = 0;
 normRedMoves = 0;
@@ -697,23 +795,25 @@ smartBlueMoveArray = [];
 
 }
 
-// goHomeRed()
+/* goHomeRed()
 // Purpose: This function moves the red marker back to (0,numRows-1).
 // 			This function is to be called when the blue marker	
 //			ends its move on the red marker, sending it back to start.
 // Inputs: none
 // Outputs: none
+*/
 function goHomeRed(){
 	redPosX = 0;
 	redPosY = numRows-1;
 }// End goHomeRed()
 
-// goHomeRed()
+/* goHomeRed()
 // Purpose: This function moves the blue marker back to (numCols-1,0).
 // 			This function is to be called when the red marker	
 //			ends its move on the blue marker, sending it back to start.
 // Inputs: none
 // Outputs: none
+*/
 function goHomeBlue(){
 	bluePosX = numCols-1;
 	bluePosY = 0;
