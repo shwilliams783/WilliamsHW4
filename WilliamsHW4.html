@@ -36,6 +36,9 @@
      GitHub Repository: https://github.com/shwilliams783/WilliamsHW4
 -->
 <html>
+<header>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+</header>
 <style>
 table{
 	border: 2px solid black;;
@@ -64,9 +67,10 @@ Any time a piece lands on its opponent, the opposing piece immediately returns t
 Once the game ends, a winner (or lose condition) is determined, and game statistics are displayed.</p>
 <div align="center" >
 	<button onClick="playGame()">Play the Game!</button>
+	<div id="chart_div"></div>
 </div>
 
-<table align="center">
+<table align="center" id="resultTable">
 	<tr>
 		<th></th>
 		<th>Normal Game</th>
@@ -112,6 +116,15 @@ Once the game ends, a winner (or lose condition) is determined, and game statist
 </table>
 	
 <script>
+// Hide the Results Table
+document.getElementById("resultTable").style.display="none";
+
+google.charts.load('current', {packages: ['corechart', 'bar']});
+google.charts.setOnLoadCallback();
+
+var data;
+var chart;
+var options;
 
 // Global Statistical Variables
 var wins = 0;
@@ -196,10 +209,6 @@ resetGame();
 
 // Display the results of the simulation
 updateResults();
-console.log("Red Moves:");
-console.log(normRedMoveArray);
-console.log("Blue Moves:");
-console.log(normBlueMoveArray);
 
 }// End playGame()
 
@@ -212,7 +221,6 @@ function winCondition(){
 			normRedMoveArray.push(redCount);
 			wins++;
 			resetGame();
-			//console.log("Red Wins!");
 			continue;
 		}
 		moveBlueMarker();
@@ -222,7 +230,6 @@ function winCondition(){
 			normBlueMoveArray.push(blueCount);
 			wins++;
 			resetGame();
-			//console.log("Blue Wins!");
 			continue;
 		}
 	}
@@ -237,7 +244,6 @@ function wrapWinCondition(){
 			wrapRedMoveArray.push(redCount);
 			wrapWins++;
 			resetGame();
-			//console.log("Red Wins!");
 			continue;
 		}
 		wrapMoveBlueMarker();
@@ -247,7 +253,6 @@ function wrapWinCondition(){
 			wrapBlueMoveArray.push(blueCount);
 			wrapWins++;
 			resetGame();
-			//console.log("Blue Wins!");
 			continue;
 		}
 	}
@@ -262,7 +267,6 @@ function smartWinCondition(){
 			smartRedMoveArray.push(redCount);
 			smartWins++;
 			resetGame();
-			console.log("Red Wins!");
 			continue;
 		}
 		smartMoveBlueMarker();
@@ -272,7 +276,6 @@ function smartWinCondition(){
 			smartBlueMoveArray.push(blueCount);
 			smartWins++;
 			resetGame();
-			console.log("Blue Wins!");
 			continue;
 		}
 	}
@@ -437,7 +440,6 @@ function smartMoveRedMarker(){
     // STEP 1: Randomly assign 0, or 1 to direction; these will correspond to
 	// up, or right movement.
 	direction = Math.floor((Math.random()*2));
-	console.log("Red: " + direction);
 	
 	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
 	distance = Math.floor((Math.random()*3));
@@ -674,7 +676,10 @@ function smartMoveBlueMarker(){
 // Outputs: none
 */
 function updateResults(){
-	
+
+// Show the Results Table
+document.getElementById("resultTable").style.display="table";	
+
 // Display the number of moves taken by the red marker during this game.
 document.getElementById("redWins").innerHTML = "Red Wins";
 document.getElementById("normRedWins").innerHTML = normRedWins;
@@ -717,6 +722,7 @@ document.getElementById("normBlueAvg").innerHTML = (normBlueMoveAvg).toFixed(2);
 document.getElementById("wrapBlueAvg").innerHTML = (wrapBlueMoveAvg).toFixed(2);
 document.getElementById("smartBlueAvg").innerHTML = (smartBlueMoveAvg).toFixed(2);
 
+drawMultSeries();
 
 }// End updateResults()
 
@@ -818,6 +824,32 @@ function goHomeBlue(){
 	bluePosX = numCols-1;
 	bluePosY = 0;
 }// End goHomeBlue()
+
+
+
+function drawMultSeries() {
+      data = google.visualization.arrayToDataTable([
+        ['Average Moves', 'Red', 'Blue'],
+        ['Normal Game', normRedMoveAvg, normBlueMoveAvg],
+        ['Board Wrap Game', wrapRedMoveAvg, wrapBlueMoveAvg],
+        ['Smart Move Game', smartRedMoveAvg, smartBlueMoveAvg]
+      ]);
+
+      options = {
+        title: 'Average Moves Per Victory By Color and Game Mode',
+        chartArea: {width: '50%'},
+        hAxis: {
+          title: 'Average Moves',
+          minValue: 0
+        },
+        vAxis: {
+          title: 'Game Mode'
+        }
+      };
+
+      chart = new google.visualization.BarChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }
 
 </script>
 
