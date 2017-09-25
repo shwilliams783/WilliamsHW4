@@ -59,17 +59,31 @@ width:25%;
 <body>
 
 <h1 align="center">Grid Game Simulation</h1>
-
-<p>This program simulates a grid-based board game where two opposing pieces (red and blue)
+<!-- Display Program's purpose to the user -->
+<p>This program runs three different simulation on a grid-based board game where two opposing pieces (red and blue)
 start in opposing corners and randomly move around the board in lateral directions until
 one or the other piece reaches the corner opposite from where it started, or 1 million moves have occurred.
-Any time a piece lands on its opponent, the opposing piece immediately returns to its starting space.
-Once the game ends, a winner (or lose condition) is determined, and game statistics are displayed.</p>
+Any time a piece lands on its opponent, the opposing piece immediately returns to its starting space.</p>
+
+<h2>The simulations are as follows:</h2>
+
+<p><b>Normal:</b> Pieces are kept within the bounds of a 10x10 grid, and end the game if they reach the opposite corner.</br>
+
+   <b>Board Wrap:</b> Same rules as Normal, except: pieces may wrap around the edges of the board, jumping to the opposite side of the board upon crossing a border.</br>
+   
+   <b>Smart Move:</b> Same rules as Normal, except pieces may not move in any direction away from their goal unless they are sent back by their opponent.</br></br>
+
+   The winning color's move totals per victory are tracked for 1000 runs of each simulation. A column graph and table displays the results of all three simulations.</br>
+   Click the button below to run the simulations.</p>
+   
+<!-- button and chart div -->
 <div align="center" >
 	<button onClick="playGame()">Play the Game!</button>
 	<div id="chart_div"></div>
 </div>
 
+<!-- results table -->
+</br>
 <table align="center" id="resultTable">
 	<tr>
 		<th></th>
@@ -119,14 +133,16 @@ Once the game ends, a winner (or lose condition) is determined, and game statist
 // Hide the Results Table
 document.getElementById("resultTable").style.display="none";
 
+// Prepare the Google Charts API
 google.charts.load('current', {packages: ['corechart', 'bar']});
 google.charts.setOnLoadCallback();
 
+// Google Charts Variables
 var data;
 var chart;
 var options;
 
-// Global Statistical Variables
+// Statistical Variables
 var wins = 0;
 var wrapWins = 0;
 var smartWins = 0;
@@ -189,9 +205,9 @@ var distance = 0;
 
 // Functions
 /* playGame()
-// Purpose: To simulate a starange game with a graphical display and user input
-// Inputs: rowSelect, colSelect
-// Outputs: The simulated strange game as descibed in HW1
+// Purpose: To simulate three different versions of a strange game 1000 times each and display statistics on the reults
+// Inputs: none
+// Outputs: A column graph and a table depicting the results of the three simulation sets.
 */
 function playGame(){
 // Reset the game
@@ -212,6 +228,11 @@ updateResults();
 
 }// End playGame()
 
+/* winCondition()
+// Purpose: This function runs the "Normal" game 1000 times and collects the results from each game
+// Inputs: none
+// Outputs: none
+*/
 function winCondition(){
 	while(wins < 1000){
 		moveRedMarker();
@@ -233,8 +254,13 @@ function winCondition(){
 			continue;
 		}
 	}
-}
+}// End winCondition()
 
+/* wrapWinCondition()
+// Purpose: This function runs the "Board Wrap" game 1000 times and collects the results from each game
+// Inputs: none
+// Outputs: none
+*/
 function wrapWinCondition(){
 	while(wrapWins < 1000){
 		wrapMoveRedMarker();
@@ -256,8 +282,13 @@ function wrapWinCondition(){
 			continue;
 		}
 	}
-}
+}// End wrapWinCondition()
 
+/* smartWinCondition()
+// Purpose: This function runs the "Smart Move" game 1000 times and collects the results from each game
+// Inputs: none
+// Outputs: none
+*/
 function smartWinCondition(){
 	while(smartWins < 1000){
 		smartMoveRedMarker();
@@ -279,11 +310,11 @@ function smartWinCondition(){
 			continue;
 		}
 	}
-}
+}// End smartWinCondition()
 
 /* moveRedMarker()
 // Purpose: Simulates random movement of the red marker on the grid.
-// Calls updateBoard() to update the game state in perceivable time.
+// Rule set: "Normal"
 // Inputs: none
 // Outputs: none
 */
@@ -294,7 +325,7 @@ function moveRedMarker(){
 	redCount++;
 	
     // STEP 1: Randomly assign 0, 1, 2, or 3 to direction; these will correspond to
-	// up, down, right, or left movement.
+	// down, up, right, or left movement.
 	direction = Math.floor((Math.random()*4));
 	
 	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
@@ -343,6 +374,12 @@ function moveRedMarker(){
 	
 }// End moveRedMarker()
 
+/* wrapMoveRedMarker()
+// Purpose: Simulates random movement of the red marker on the grid.
+// Rule set: "Board Wrap"
+// Inputs: none
+// Outputs: none
+*/
 function wrapMoveRedMarker(){
 	
 	// Increment the counters
@@ -350,7 +387,7 @@ function wrapMoveRedMarker(){
 	redCount++;
 	
     // STEP 1: Randomly assign 0, 1, 2, or 3 to direction; these will correspond to
-	// up, down, right, or left movement.
+	// down, up, right, or left movement.
 	direction = Math.floor((Math.random()*4));
 	
 	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
@@ -429,8 +466,14 @@ function wrapMoveRedMarker(){
 		goHomeBlue();
 	}
 	
-}
+}// End wrapMoveRedMarker()
 
+/* smartMoveRedMarker()
+// Purpose: Simulates random movement of the red marker on the grid.
+// Rule set: "Smart Move"
+// Inputs: none
+// Outputs: none
+*/
 function smartMoveRedMarker(){
 	
 	 // Increment the counters
@@ -473,11 +516,11 @@ function smartMoveRedMarker(){
 		goHomeBlue();
 	}
 	
-}
+}// End smartMoveRedMarker()
 
 /* moveBlueMarker()
 // Purpose: Simulates random movement of the blue marker on the grid.
-// Calls updateBoard() to update the game state in perceivable time.
+// Rule set: "Normal"
 // Inputs: none
 // Outputs: none
 */
@@ -488,7 +531,7 @@ function moveBlueMarker(){
 	blueCount++;
 	
     // STEP 1: Randomly assign 0, 1, 2, or 3 to direction; these will correspond to
-	// up, down, right, or left movement.
+	// down, up, right, or left movement.
 	direction = Math.floor((Math.random()*4));
 	
 	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
@@ -537,6 +580,12 @@ function moveBlueMarker(){
     
 }// End moveBlueMarker()
 
+/* wrapMoveBlueMarker()
+// Purpose: Simulates random movement of the blue marker on the grid.
+// Rule set: "Board Wrap"
+// Inputs: none
+// Outputs: none
+*/
 function wrapMoveBlueMarker(){
 	
 	// Increment the counters
@@ -544,7 +593,7 @@ function wrapMoveBlueMarker(){
 	blueCount++;
 	
     // STEP 1: Randomly assign 0, 1, 2, or 3 to direction; these will correspond to
-	// up, down, right, or left movement.
+	// down, up, right, or left movement.
 	direction = Math.floor((Math.random()*4));
 	
 	// STEP 2: Randomly assign 0, 1, or 2 steps to distance.
@@ -623,8 +672,14 @@ function wrapMoveBlueMarker(){
 		goHomeRed();
 	}
 	
-}
+}// End wrapMoveBlueMarker()
 
+/* smartMoveBlueMarker()
+// Purpose: Simulates random movement of the blue marker on the grid.
+// Rule set: "Smart Move"
+// Inputs: none
+// Outputs: none
+*/
 function smartMoveBlueMarker(){
 	
 	// Increment the counters
@@ -667,13 +722,15 @@ function smartMoveBlueMarker(){
 		goHomeRed();
 	}
     
-}// End moveBlueMarker()
+}// End smartMoveBlueMarker()
 
 
 /* updateResults()
-// Purpose: graphically updates the UI in real time
+// Purpose: Displays the simulation results in tabular form and calls drawMultSeries()
 // Inputs: none
-// Outputs: none
+// Outputs: A table depicting the results of the three simulation sets;
+// results include: wins by each color, total moves taken by each color
+// in a winning game, and average moves for a win for each color
 */
 function updateResults(){
 
@@ -722,12 +779,14 @@ document.getElementById("normBlueAvg").innerHTML = (normBlueMoveAvg).toFixed(2);
 document.getElementById("wrapBlueAvg").innerHTML = (wrapBlueMoveAvg).toFixed(2);
 document.getElementById("smartBlueAvg").innerHTML = (smartBlueMoveAvg).toFixed(2);
 
+// Draw a column graph of the results
 drawMultSeries();
 
 }// End updateResults()
 
 /* resetGame()
-// Purpose: This function resets the starting variables to their default values
+// Purpose: This function reset "a strange game" variables to their default values;
+// called repeatedly to simulate the game thousands of times.
 // Inputs: none
 // Outputs: none
 */
@@ -763,8 +822,14 @@ direction = 0;
 distance = 0;
 }// End resetGame()
 
+/* resetAll()
+// Purpose: This function reset all variables to their default values;
+// called each time the simulation is to be run (upon clicking the button).
+// Inputs: none
+// Outputs: none
+*/
 function resetAll(){
-
+// Resets "a strange game" variables
 resetGame();
 
 // Global Statistical Variables
@@ -799,7 +864,7 @@ wrapBlueMoveArray = [];
 smartRedMoveArray = [];
 smartBlueMoveArray = [];
 
-}
+}// End resetAll()
 
 /* goHomeRed()
 // Purpose: This function moves the red marker back to (0,numRows-1).
@@ -813,7 +878,7 @@ function goHomeRed(){
 	redPosY = numRows-1;
 }// End goHomeRed()
 
-/* goHomeRed()
+/* goHomeBlue()
 // Purpose: This function moves the blue marker back to (numCols-1,0).
 // 			This function is to be called when the red marker	
 //			ends its move on the blue marker, sending it back to start.
@@ -825,31 +890,38 @@ function goHomeBlue(){
 	bluePosY = 0;
 }// End goHomeBlue()
 
-
-
+/* drawMultSeries()
+// Purpose: This function uses Google Chart API to draw a bar graph depicting the results of the 3 sets of simulations
+// Inputs: none
+// Outputs: none
+*/
 function drawMultSeries() {
-      data = google.visualization.arrayToDataTable([
-        ['Average Moves', 'Red', 'Blue'],
+	// Define the data sets (red/blue) and assign the  MoveAvg results from each simulation to the dataset
+    data = google.visualization.arrayToDataTable([
+		['Average Moves', 'Red', 'Blue'],
         ['Normal Game', normRedMoveAvg, normBlueMoveAvg],
         ['Board Wrap Game', wrapRedMoveAvg, wrapBlueMoveAvg],
         ['Smart Move Game', smartRedMoveAvg, smartBlueMoveAvg]
-      ]);
+		]);
 
-      options = {
+    // Set the style options for the displayed graph
+	options = {
         title: 'Average Moves Per Victory By Color and Game Mode',
         chartArea: {width: '50%'},
-        hAxis: {
-          title: 'Average Moves',
-          minValue: 0
-        },
         vAxis: {
-          title: 'Game Mode'
-        }
-      };
+          title: 'Average Moves'
+        },
+        hAxis: {
+          title: 'Game Mode',
+		  minValue: 0
+        },
+		colors: ['red', 'blue']
+    };
 
-      chart = new google.visualization.BarChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    }
+    // Assign the chart div to chart and draw the data table as a column graph there
+	chart = new google.visualization.ColumnChart(document.getElementById('chart_div'));
+    chart.draw(data, options);
+}// End drawMultSeries()
 
 </script>
 
